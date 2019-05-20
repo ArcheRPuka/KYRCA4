@@ -1822,6 +1822,7 @@ int main(int argc, char** argv)
 						{
 							close = 0;
 							ap = 0;
+							//ход воинов и их перестановка
 							for (int i = 1; i <= kol; i++)
 							{
 								Player_voin_map[i][10].bronz += Player_voin_xod[i][10].bronz;
@@ -1830,6 +1831,17 @@ int main(int argc, char** argv)
 								Player_voin_xod[i][10].bronz = 0;
 								Player_voin_xod[i][10].serebr = 0;
 								Player_voin_xod[i][10].gold = 0;
+							}
+							//присвоение игрокам их территории
+							for (int i = 1; i <= kol; i++)
+							{
+								for (int j = 1; j <= 10; j++)
+								{
+									if (Player_voin_map[i][j].bronz > 0 || Player_voin_map[i][j].serebr > 0 || Player_voin_map[i][j].gold > 0)
+									{
+										colr[i] = j;
+									}
+								}
 							}
 							//цикл вычисления ботов
 						}
