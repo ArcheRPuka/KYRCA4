@@ -1150,6 +1150,16 @@ void xod_voin(SDL_Renderer* renderer, int a)
 	}
 	}
 }
+void pauzz(SDL_Renderer* renderer)
+{
+	SDL_Rect cord = { 0,0,1280,720 };
+	SDL_Surface *myImage = SDL_LoadBMP("Pause.bmp");
+	SDL_SetColorKey(myImage, SDL_TRUE, SDL_MapRGB(myImage->format, 0, 255, 255));
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, myImage);
+	SDL_RenderCopy(renderer, texture, NULL, &cord);
+	SDL_FreeSurface(myImage);
+	SDL_DestroyTexture(texture);
+}
 int main(int argc, char** argv)
 {
 	///////////////////////////////////цена зданий//////////////////////////////
@@ -1243,6 +1253,7 @@ int main(int argc, char** argv)
 				int close = 0;
 				int ap = 0;
 				int sost=0;
+				int pause = 0;
 				int xod[2]; xod[0] = 0; xod[1] = 0;////////
 				//состояние между игроками///////////////////////////////////////////////
 				//1-е число номер игрока, 2-е число с каким именно игроком состояние
@@ -1828,6 +1839,24 @@ int main(int argc, char** argv)
 								}
 							}
 						}
+						////////////////////////////////////////////pause/////////////////////////////////////////////////////						
+						if (((event.type == SDL_KEYDOWN) && (event.key.keysym.sym == SDLK_ESCAPE)) || (pause == 1))
+						{
+							pause = 1; close = 0; ap = 0;
+							pauzz(renderer);
+							//продолжить
+							if (event.type == SDL_MOUSEBUTTONDOWN && event.button.x >= 350 && event.button.x <= 928 && event.button.y >= 100 && event.button.y < 208)
+							{
+								pause = 0;
+							}
+							//сохранить
+
+							//выход
+							if (event.type == SDL_MOUSEBUTTONDOWN && event.button.x >= 486 && event.button.x <= 790 && event.button.y >= 253 && event.button.y < 637)
+							{
+								quit = true;
+							}
+						}
 						//закончить ход//////////////////////////////////////////////////
 						if ((event.button.button == SDL_BUTTON_LEFT) && (event.button.x >= 1125 && event.button.x <= 1276 && event.button.y >= 566 && event.button.y <= 716))
 						{
@@ -1843,6 +1872,7 @@ int main(int argc, char** argv)
 								{
 									if (colr[j] == i)
 									{
+										if (i == 10) i = 0;
 										Player_res[i].gold += pice_men.gold;
 										Player_res[i].eat += pice_men.eat;
 										Player_res[i].metl += pice_men.metl;
@@ -1870,12 +1900,37 @@ int main(int argc, char** argv)
 											Player_res[i].eat +=3* pice_mine.eat;
 											Player_res[i].metl +=3* pice_mine.metl;
 										}
-
+										if (i == 0) i = 10;
+									}									
+								}
+								if (i == 10) i = 0;
+								/////////////////----------
+								for (int j = 1; j <= kol; j++)
+								{
+									if (i != 0)
+									{
+										Player_res[i].gold = Player_res[i].gold - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.gold);
+										Player_res[i].eat = Player_res[i].eat - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.eat);
+										Player_res[i].metl = Player_res[i].metl - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.metl);
+									}
+									if (i == 0)
+									{
+										i = 10;
+										Player_res[0].gold = Player_res[0].gold - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.gold);
+										Player_res[0].eat = Player_res[0].eat - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.eat);
+										Player_res[0].metl = Player_res[0].metl - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.metl);
+										i = 0;
 									}
 								}
-								/////////////////----------
-
-								if (i == 10) i = 0;
+								for (int j = 0; j < 10; j++)
+								{
+									if (Player_sost[i][j] == 2)
+									{										
+										Player_res[i].gold -= pice_sost_voin.gold;
+										Player_res[i].eat -= pice_sost_voin.eat;
+										Player_res[i].metl -= pice_sost_voin.metl;										
+									}
+								}
 							}
 							//ход воинов и их перестановка
 							for (int i = 1; i <= kol; i++)
