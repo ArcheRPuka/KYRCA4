@@ -1154,6 +1154,17 @@ int main(int argc, char** argv)
 {
 	///////////////////////////////////цена зданий//////////////////////////////
 	Resyrs price[4][4];
+	//////////////////////////////////цена ресурсов+////////////////////////////
+	Resyrs pice_market, pice_mine, pice_men;
+	///////////////////////////////////////////////////////////////////////////+++++
+	pice_market.eat = 10; pice_market.gold = 10; pice_market.metl = 10;
+	pice_mine.eat = 10; pice_mine.gold = 10; pice_mine.metl = 10;
+	pice_men.eat = 10; pice_men.gold = 10; pice_men.metl = 10;
+	//////////////////////////////////цена ресурсов-////////////////////////////
+	Resyrs pice_arm, pice_sost_voin;
+	///////////////////////////////////////////////////////////////////////////----
+	pice_arm.eat = 10; pice_arm.gold = 10; pice_arm.metl = 10;
+	pice_sost_voin.eat = 10; pice_sost_voin.gold = 10; pice_sost_voin.metl = 10;
 	////////////////цена постройки///////////////////
 	///////////казарма
 	price[0][0].gold = 30;	price[0][0].eat = 20;	price[0][0].metl = 10;
@@ -1273,12 +1284,12 @@ int main(int argc, char** argv)
 				colr[60] = 7; colr[5] = 8; colr[14] = 9; colr[34] = 10;
 				//городское население
 				int gor_nas[100];
-				for (int i = 1; i < kol; i++)
+				for (int i = 1; i <= kol; i++)
 				{
 					do
 					{
 						gor_nas[i] = rand();
-					} while (gor_nas[i] > 800 || gor_nas[i] < 200);
+					} while (gor_nas[i] > 300 || gor_nas[i] < 50);
 				}
 				//игровой цикл/////////////////////////////
 				while (!quit)
@@ -1430,7 +1441,7 @@ int main(int argc, char** argv)
 									{
 										coinvoin[1]--;
 									}
-									if (event.button.x >= 171 && event.button.x <= 321 && event.button.y >= 580 && event.button.y < 640)//присвоение воинов на карту и отнимание цены
+									if (event.button.x >= 171 && event.button.x <= 321 && event.button.y >= 580 && event.button.y < 640 && gor_nas[close]>coinvoin[1])//присвоение воинов на карту и отнимание цены
 									{
 										gor_nas[close]-= coinvoin[1];
 										Player_voin_map[close][10].bronz = Player_voin_map[close][10].bronz + coinvoin[1];
@@ -1450,7 +1461,7 @@ int main(int argc, char** argv)
 									{
 										coinvoin[2]--;
 									}
-									if (event.button.x >= 561 && event.button.x <= 711 && event.button.y >= 580 && event.button.y < 640)//присвоение воинов на карту и отнимание цены
+									if (event.button.x >= 561 && event.button.x <= 711 && event.button.y >= 580 && event.button.y < 640 && gor_nas[close]>coinvoin[2])//присвоение воинов на карту и отнимание цены
 									{
 										gor_nas[close] -= coinvoin[2];
 										Player_voin_map[close][10].serebr = Player_voin_map[close][10].serebr + coinvoin[2];
@@ -1470,7 +1481,7 @@ int main(int argc, char** argv)
 									{
 										coinvoin[3]--;
 									}
-									if (event.button.x >= 951 && event.button.x <= 1101 && event.button.y >= 580 && event.button.y < 640)//присвоение воинов на карту и отнимание цены
+									if (event.button.x >= 951 && event.button.x <= 1101 && event.button.y >= 580 && event.button.y < 640 && gor_nas[close]>coinvoin[3])//присвоение воинов на карту и отнимание цены
 									{
 										gor_nas[close] -= coinvoin[3];
 										Player_voin_map[close][10].gold = Player_voin_map[close][10].gold + coinvoin[3];
@@ -1820,17 +1831,64 @@ int main(int argc, char** argv)
 						//закончить ход//////////////////////////////////////////////////
 						if ((event.button.button == SDL_BUTTON_LEFT) && (event.button.x >= 1125 && event.button.x <= 1276 && event.button.y >= 566 && event.button.y <= 716))
 						{
+							//цикл вычисления ботов
 							close = 0;
 							ap = 0;
+							//присвоение заработанных средств
+							for (int i = 0; i < 10; i++)
+							{
+								if (i == 0) i = 10;
+								///////////+++++++
+								for (int j = 1; j <= kol; j++)
+								{
+									if (colr[j] == i)
+									{
+										Player_res[i].gold += pice_men.gold;
+										Player_res[i].eat += pice_men.eat;
+										Player_res[i].metl += pice_men.metl;
+										if (Player_st[j].market == 1)
+										{
+											Player_res[i].gold += pice_market.gold;
+											Player_res[i].eat += pice_market.eat;
+											Player_res[i].metl += pice_market.metl;
+										}
+										if (Player_st[j].mine == 1)
+										{
+											Player_res[i].gold += pice_mine.gold;
+											Player_res[i].eat += pice_mine.eat;
+											Player_res[i].metl += pice_mine.metl;
+										}
+										if (Player_st[j].mine == 2)
+										{
+											Player_res[i].gold +=2* pice_mine.gold;
+											Player_res[i].eat +=2* pice_mine.eat;
+											Player_res[i].metl +=2* pice_mine.metl;
+										}
+										if (Player_st[j].mine == 3)
+										{
+											Player_res[i].gold +=3* pice_mine.gold;
+											Player_res[i].eat +=3* pice_mine.eat;
+											Player_res[i].metl +=3* pice_mine.metl;
+										}
+
+									}
+								}
+								/////////////////----------
+
+								if (i == 10) i = 0;
+							}
 							//ход воинов и их перестановка
 							for (int i = 1; i <= kol; i++)
 							{
-								Player_voin_map[i][10].bronz += Player_voin_xod[i][10].bronz;
-								Player_voin_map[i][10].serebr += Player_voin_xod[i][10].serebr;
-								Player_voin_map[i][10].gold += Player_voin_xod[i][10].gold;
-								Player_voin_xod[i][10].bronz = 0;
-								Player_voin_xod[i][10].serebr = 0;
-								Player_voin_xod[i][10].gold = 0;
+								for (int j = 1; j <= 10; j++)
+								{
+									Player_voin_map[i][j].bronz += Player_voin_xod[i][j].bronz;
+									Player_voin_map[i][j].serebr += Player_voin_xod[i][j].serebr;
+									Player_voin_map[i][j].gold += Player_voin_xod[i][j].gold;
+									Player_voin_xod[i][j].bronz = 0;
+									Player_voin_xod[i][j].serebr = 0;
+									Player_voin_xod[i][j].gold = 0;
+								}
 							}
 							//присвоение игрокам их территории
 							for (int i = 1; i <= kol; i++)
@@ -1842,8 +1900,7 @@ int main(int argc, char** argv)
 										colr[i] = j;
 									}
 								}
-							}
-							//цикл вычисления ботов
+							}							
 						}
 						SDL_RenderPresent(renderer);
 						if (event.type == SDL_MOUSEBUTTONDOWN)
