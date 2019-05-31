@@ -82,7 +82,7 @@ void pokaz_4icel(SDL_Window*window, SDL_Renderer* &renderer, int k, int i)
 	TTF_Font* my_font = TTF_OpenFont("Text.ttf", 100);
 	SDL_Color fore_color = { 0,0,0 };
 	SDL_Color back_color = { 255,255,255 };
-	SDL_Rect *rect = new SDL_Rect[10];
+	SDL_Rect *rect = new SDL_Rect[15];
 	//золото
 	rect[1] = { 1129 + 23 * a,79,23 * b,40 };
 	//еда
@@ -101,6 +101,8 @@ void pokaz_4icel(SDL_Window*window, SDL_Renderer* &renderer, int k, int i)
 	rect[8] = { 172 + 20 * a,645,20 * b,45 };
 	//gorod nasel
 	rect[9] = { 1130 + 23 * a,516,23 * b,40 };
+	//Player_kol
+	rect[10] = { 708 + 70 * a,248,70 * b,90 };
 	SDL_Surface* textSurface = NULL;
 	textSurface = TTF_RenderText_Shaded(my_font, text, fore_color, back_color);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, textSurface);
@@ -125,7 +127,7 @@ void romb(SDL_Renderer*renderer, SDL_Rect rect, int t, int k)
 	case(7): {r = 255; g = 128; b = 255; break; }//бледно розовый
 	case(8): {r = 128; g = 255; b = 255; break; }//бирюзовый
 	case(9): {r = 255; g = 255; b = 128; break; }//желтый
-	case(10): {r = 0; g = 0; b = 0; break; }//1
+	case(0): {r = 0; g = 0; b = 0; break; }//1
 	default: {r = 128; g = 128; b = 128; break; }
 	}
 	SDL_SetRenderDrawColor(renderer, r, g, b, 0);
@@ -973,7 +975,7 @@ void risovka_voin_wind(SDL_Renderer* renderer, int x, int y, int p, int a, int j
 		}
 		break;
 	}
-	case(10):
+	case(0):
 	{
 		switch (j)
 		{
@@ -1160,6 +1162,106 @@ void pauzz(SDL_Renderer* renderer)
 	SDL_FreeSurface(myImage);
 	SDL_DestroyTexture(texture);
 }
+void kart1(SDL_Renderer* renderer)
+{
+	SDL_Surface *myImage = SDL_LoadBMP("FON2.bmp");
+	SDL_SetColorKey(myImage, SDL_TRUE, SDL_MapRGB(myImage->format, 0, 0, 0));
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, myImage);
+	SDL_Rect rect = { 0,0,1280,720 };
+	SDL_RenderCopy(renderer, texture, NULL, &rect);
+	SDL_FreeSurface(myImage);
+	SDL_DestroyTexture(texture);
+}
+void kart2(SDL_Renderer* renderer)
+{
+	SDL_Surface *myImage = SDL_LoadBMP("FON3.bmp");
+	SDL_SetColorKey(myImage, SDL_TRUE, SDL_MapRGB(myImage->format, 0, 0, 0));
+	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, myImage);
+	SDL_Rect rect = { 0,0,1280,720 };
+	SDL_RenderCopy(renderer, texture, NULL, &rect);
+	SDL_FreeSurface(myImage);
+	SDL_DestroyTexture(texture);
+}
+//0=back  1=load   2=new
+int vibor_zagryzki(SDL_Renderer* renderer)
+{
+	bool quit = false;
+	while (!quit)
+	{
+		SDL_Event event;
+		SDL_RenderClear(renderer);
+		SDL_PollEvent(&event);
+		kart1(renderer);
+		SDL_RenderPresent(renderer);
+		if (event.button.button == SDL_BUTTON_LEFT)
+		{
+			//new
+			if (event.button.x >= 332 && event.button.x <= 948 && event.button.y >= 143 && event.button.y <= 259)
+			{
+				if (event.type == SDL_MOUSEBUTTONDOWN)
+				{
+					SDL_Delay(200);
+				}
+				return 2;
+			}
+			//load
+			if (event.button.x >= 236 && event.button.x <= 1043 && event.button.y >= 333 && event.button.y <= 445)
+			{
+				if (event.type == SDL_MOUSEBUTTONDOWN)
+				{
+					SDL_Delay(200);
+				}
+				return 1;
+			}
+			//back
+			if (event.button.x >= 486 && event.button.x <= 801 && event.button.y >= 560 && event.button.y <= 678)
+			{
+				return 0;
+			}
+		}
+	}
+}
+//0- back   <3-Player
+int zagr_new(SDL_Window* window, SDL_Renderer* renderer, int Player)
+{
+	bool quit = false;
+	while (!quit)
+	{
+		SDL_Event event;
+		SDL_RenderClear(renderer);
+		SDL_PollEvent(&event);
+		kart2(renderer);
+		pokaz_4icel(window, renderer, Player, 10);
+		SDL_RenderPresent(renderer);
+		if (event.button.button == SDL_BUTTON_LEFT)
+		{
+			//++
+			if (event.button.x >= 962 && event.button.x <= 1156 && event.button.y >= 145 && event.button.y <= 246 && Player<10)
+			{
+				Player++;
+			}
+			//--
+			if (event.button.x >= 962 && event.button.x <= 1156 && event.button.y >= 346 && event.button.y <= 447 && Player > 3)
+			{
+				Player--;
+			}
+			//back
+			if (event.button.x >= 37 && event.button.x <= 337 && event.button.y >= 597 && event.button.y <= 687)
+			{
+				return 0;
+			}
+			//start
+			if (event.button.x >= 901 && event.button.x <= 1238 && event.button.y >= 598 && event.button.y <= 682)
+			{
+				return Player;
+			}
+		}
+		if (event.type == SDL_MOUSEBUTTONDOWN)
+		{
+			SDL_Delay(200);
+		}
+	}
+}
 int main(int argc, char** argv)
 {
 	///////////////////////////////////цена зданий//////////////////////////////
@@ -1213,6 +1315,10 @@ int main(int argc, char** argv)
 	//постоянное коорд число
 	int t = 50;
 	srand(time(NULL));
+	int vibor_zagr = 3;
+	//количество игроков
+	int Player_kol = 10;
+	int pick = 0;
 	//координаты карты////////////////////////////////////////
 	int map[1000][2];
 	int kol;
@@ -1228,19 +1334,44 @@ int main(int argc, char** argv)
 	bool quit = false;
 	while (!quit)
 	{
+		SDL_RenderClear(renderer);
 		//отрисовка заглавного меню////////////////////////////
 		kartinka_start_menu(window, renderer);
 		SDL_RenderPresent(renderer);
 		SDL_PollEvent(&event);		
 		if (event.button.button == SDL_BUTTON_LEFT)
 		{
+			//начать
 			if (event.button.x >= 426 && event.button.x <= 858 && event.button.y >= 173 && event.button.y <= 281)
+			{
+				if (event.type == SDL_MOUSEBUTTONDOWN)
+				{
+					SDL_Delay(200);
+				}
+				vibor_zagr = vibor_zagryzki(renderer);
+			}			
+			//кнопка выхода////////////////////////////////////////////
+			if (event.button.x >= 489 && event.button.x <= 798 && event.button.y >= 563 && event.button.y <= 675)
+				quit = true;
+		}
+		if (vibor_zagr == 1 || vibor_zagr == 2)
+		{
+			if (vibor_zagr == 2)
+			{
+				Player_kol = zagr_new(window, renderer, Player_kol);
+				//заполнение всего
+			}
+			else
+			{
+
+			}
+			if (Player_kol != 0)
 			{
 				//количество воинов на карте
 				voin Player_voin_map[101][11];
 				voin Player_voin_xod[101][11];
 				for (int i = 1; i <= 100; i++)
-					for (int j = 1; j <= 10; j++)
+					for (int j = 0; j < Player_kol; j++)
 					{
 						Player_voin_map[i][j].bronz = 0;
 						Player_voin_map[i][j].serebr = 0;
@@ -1252,7 +1383,7 @@ int main(int argc, char** argv)
 				int coinvoin[3];
 				int close = 0;
 				int ap = 0;
-				int sost=0;
+				int sost = 0;
 				int pause = 0;
 				int xod[2]; xod[0] = 0; xod[1] = 0;////////
 				//состояние между игроками///////////////////////////////////////////////
@@ -1261,7 +1392,7 @@ int main(int argc, char** argv)
 				//1-войны
 				//2-мира
 				int Player_sost[10][10];
-				for (int i = 0; i < 10; i++)
+				for (int i = 0; i < Player_kol; i++)
 				{
 					for (int j = 0; j < 10; j++)
 					{
@@ -1270,7 +1401,7 @@ int main(int argc, char** argv)
 				}
 				//массивы ресурсов при старте////////////////////////////////////////////////
 				Resyrs Player_res[10];
-				for (int i = 0; i < 10; i++)
+				for (int i = 0; i < Player_kol; i++)
 				{
 					Player_res[i].gold = 1000;
 					Player_res[i].eat = 1000;
@@ -1278,7 +1409,7 @@ int main(int argc, char** argv)
 				}
 				//массив построек////////////////////////////////////////////
 				Stroenie Player_st[1000];
-				for (int i = 1; i <= 100; i++)
+				for (int i = 1; i <= kol; i++)
 				{
 					Player_st[i].kazarm = 0;//3-ур
 					Player_st[i].krepoct = 0;//3-ур
@@ -1289,10 +1420,23 @@ int main(int argc, char** argv)
 				int colr[100];
 				for (int i = 1; i <= kol; i++)
 				{
-					colr[i] = 0;
+					colr[i] = 10;
 				}
-				colr[1] = 1; colr[10] = 2; colr[20] = 3; colr[30] = 4; colr[26] = 5; colr[50] = 6;
-				colr[60] = 7; colr[5] = 8; colr[14] = 9; colr[34] = 10;
+				switch (Player_kol)
+				{
+				case(10): {colr[14] = 9; }
+				case(9): {colr[5] = 8; }
+				case(8): {colr[60] = 7; }
+				case(7): {colr[50] = 6; }
+				case(6): {colr[26] = 5; }
+				case(5): {colr[30] = 4; }
+				case(4): {colr[20] = 3; }
+				case(3): {colr[10] = 2; }
+				case(2): {colr[1] = 1; }
+				case(1): {colr[34] = 0; }
+				}
+
+
 				//городское население
 				int gor_nas[100];
 				for (int i = 1; i <= kol; i++)
@@ -1321,7 +1465,7 @@ int main(int argc, char** argv)
 						for (int j = 1; j < 10; j++)
 						{
 							ind_sost(renderer, j, Player_sost[0][j]);
-						}						
+						}
 						//взаимодействие с картой///////////////////////////
 						if (event.type == SDL_MOUSEBUTTONDOWN)
 						{
@@ -1345,12 +1489,12 @@ int main(int argc, char** argv)
 										if ((event.button.x >= zx && event.button.x <= zw && event.button.y >= zy && event.button.y <= zh) || (event.button.x >= cx && event.button.x <= cw && event.button.y >= cy && event.button.y <= ch))
 										{
 											close = j;
-											if (colr[j] == 10)
+											if (colr[j] == 0)
 												ap = 1;
 											if (colr[j] < 10 && colr[j] > 0)
 											{
 												sost = 5;
-											}											
+											}
 										}
 										zx++; zy--; zw--; zh--;
 										cx++; cy++; cw--; ch++;
@@ -1454,8 +1598,8 @@ int main(int argc, char** argv)
 									}
 									if (event.button.x >= 171 && event.button.x <= 321 && event.button.y >= 580 && event.button.y < 640 && gor_nas[close]>coinvoin[1])//присвоение воинов на карту и отнимание цены
 									{
-										gor_nas[close]-= coinvoin[1];
-										Player_voin_map[close][10].bronz = Player_voin_map[close][10].bronz + coinvoin[1];
+										gor_nas[close] -= coinvoin[1];
+										Player_voin_map[close][0].bronz = Player_voin_map[close][0].bronz + coinvoin[1];
 										Player_res[0].gold = Player_res[0].gold - price[3][1].gold*coinvoin[1];
 										Player_res[0].eat = Player_res[0].eat - price[3][1].eat*coinvoin[1];
 										Player_res[0].metl = Player_res[0].metl - price[3][1].metl*coinvoin[1];
@@ -1475,7 +1619,7 @@ int main(int argc, char** argv)
 									if (event.button.x >= 561 && event.button.x <= 711 && event.button.y >= 580 && event.button.y < 640 && gor_nas[close]>coinvoin[2])//присвоение воинов на карту и отнимание цены
 									{
 										gor_nas[close] -= coinvoin[2];
-										Player_voin_map[close][10].serebr = Player_voin_map[close][10].serebr + coinvoin[2];
+										Player_voin_map[close][0].serebr = Player_voin_map[close][0].serebr + coinvoin[2];
 										Player_res[0].gold = Player_res[0].gold - price[3][2].gold*coinvoin[2];
 										Player_res[0].eat = Player_res[0].eat - price[3][2].eat*coinvoin[2];
 										Player_res[0].metl = Player_res[0].metl - price[3][2].metl*coinvoin[2];
@@ -1495,7 +1639,7 @@ int main(int argc, char** argv)
 									if (event.button.x >= 951 && event.button.x <= 1101 && event.button.y >= 580 && event.button.y < 640 && gor_nas[close]>coinvoin[3])//присвоение воинов на карту и отнимание цены
 									{
 										gor_nas[close] -= coinvoin[3];
-										Player_voin_map[close][10].gold = Player_voin_map[close][10].gold + coinvoin[3];
+										Player_voin_map[close][0].gold = Player_voin_map[close][0].gold + coinvoin[3];
 										Player_res[0].gold = Player_res[0].gold - price[3][3].gold*coinvoin[3];
 										Player_res[0].eat = Player_res[0].eat - price[3][3].eat*coinvoin[3];
 										Player_res[0].metl = Player_res[0].metl - price[3][3].metl*coinvoin[3];
@@ -1507,24 +1651,24 @@ int main(int argc, char** argv)
 								////////////////////////////////////////////////////
 								if (ap == 7)
 								{
-									if (event.button.x >= 110 && event.button.x <= 210 && event.button.y >= 580 && event.button.y <= 700 &&(Player_voin_map[close][10].bronz>0))
+									if (event.button.x >= 110 && event.button.x <= 210 && event.button.y >= 580 && event.button.y <= 700 && (Player_voin_map[close][0].bronz > 0))
 									{
-										ap = 15;	
-										coinvoin[1] = Player_voin_map[close][10].bronz;										
+										ap = 15;
+										coinvoin[1] = Player_voin_map[close][0].bronz;
 									}
-									if (event.button.x >= 500 && event.button.x <= 600 && event.button.y >= 580 && event.button.y <= 700 && (Player_voin_map[close][10].serebr > 0))
+									if (event.button.x >= 500 && event.button.x <= 600 && event.button.y >= 580 && event.button.y <= 700 && (Player_voin_map[close][0].serebr > 0))
 									{
-										ap = 16;	
-										coinvoin[1] = Player_voin_map[close][10].serebr;
+										ap = 16;
+										coinvoin[1] = Player_voin_map[close][0].serebr;
 									}
-									if (event.button.x >= 890 && event.button.x <= 990 && event.button.y >= 580 && event.button.y <= 700 && (Player_voin_map[close][10].gold > 0))
+									if (event.button.x >= 890 && event.button.x <= 990 && event.button.y >= 580 && event.button.y <= 700 && (Player_voin_map[close][0].gold > 0))
 									{
 										ap = 17;
-										coinvoin[1] = Player_voin_map[close][10].gold;
-									}									
+										coinvoin[1] = Player_voin_map[close][0].gold;
+									}
 								}
-								if (ap == 15 || ap==16 || ap==17)
-								{									
+								if (ap == 15 || ap == 16 || ap == 17)
+								{
 									if (event.button.x >= 120 && event.button.x <= 170 && event.button.y >= 640 && event.button.y <= 700 && coinvoin[1] > 0)
 									{
 										coinvoin[1]--;
@@ -1553,26 +1697,26 @@ int main(int argc, char** argv)
 									if (ap == 15)
 									{
 										xod[1] = 1;
-										if (event.button.x >= 120 && event.button.x <= 170 && event.button.y >= 580 && event.button.y < 640 && coinvoin[1] < Player_voin_map[close][10].bronz)
+										if (event.button.x >= 120 && event.button.x <= 170 && event.button.y >= 580 && event.button.y < 640 && coinvoin[1] < Player_voin_map[close][0].bronz)
 										{
 											coinvoin[1]++;
-										}										
+										}
 									}
 									if (ap == 16)
 									{
 										xod[1] = 2;
-										if (event.button.x >= 120 && event.button.x <= 170 && event.button.y >= 580 && event.button.y < 640 && coinvoin[1] < Player_voin_map[close][10].serebr)
+										if (event.button.x >= 120 && event.button.x <= 170 && event.button.y >= 580 && event.button.y < 640 && coinvoin[1] < Player_voin_map[close][0].serebr)
 										{
 											coinvoin[1]++;
-										}										
+										}
 									}
 									if (ap == 17)
 									{
 										xod[1] = 3;
-										if (event.button.x >= 120 && event.button.x <= 170 && event.button.y >= 580 && event.button.y < 640 && coinvoin[1] < Player_voin_map[close][10].gold)
+										if (event.button.x >= 120 && event.button.x <= 170 && event.button.y >= 580 && event.button.y < 640 && coinvoin[1] < Player_voin_map[close][0].gold)
 										{
 											coinvoin[1]++;
-										}										
+										}
 									}
 								}
 								////////////////////////////////////////////////////
@@ -1617,18 +1761,18 @@ int main(int argc, char** argv)
 							}
 						}
 						////////////////переход воинов//////////////////////
-						if (xod[0] != 0 && xod[0]!=close)
-						{							
+						if (xod[0] != 0 && xod[0] != close)
+						{
 							if ((map[xod[0]][0] == map[close][0] - t && map[xod[0]][1] == map[close][1] + t) || (map[xod[0]][0] == map[close][0] + t && map[xod[0]][1] == map[close][1] + t) || (map[xod[0]][0] == map[close][0] - t && map[xod[0]][1] == map[close][1] - t) || (map[xod[0]][0] == map[close][0] + t && map[xod[0]][1] == map[close][1] - t))
 							{
-								if (xod[1] == 1) { Player_voin_xod[close][10].bronz += coinvoin[1]; Player_voin_map[xod[0]][10].bronz -= coinvoin[1]; }
-								if (xod[1] == 2) { Player_voin_xod[close][10].serebr += coinvoin[1]; Player_voin_map[xod[0]][10].serebr -= coinvoin[1]; }
-								if (xod[1] == 3) { Player_voin_xod[close][10].gold += coinvoin[1]; Player_voin_map[xod[0]][10].gold -= coinvoin[1]; }
-							}							
+								if (xod[1] == 1) { Player_voin_xod[close][0].bronz += coinvoin[1]; Player_voin_map[xod[0]][0].bronz -= coinvoin[1]; }
+								if (xod[1] == 2) { Player_voin_xod[close][0].serebr += coinvoin[1]; Player_voin_map[xod[0]][0].serebr -= coinvoin[1]; }
+								if (xod[1] == 3) { Player_voin_xod[close][0].gold += coinvoin[1]; Player_voin_map[xod[0]][0].gold -= coinvoin[1]; }
+							}
 							xod[0] = 0;
 						}
 						///////////////стрелки на карте при выборе хода//////////////////////
-						if ((ap == 7 || ap == 15 || ap == 16 || ap == 17 || ap == 18) && (Player_voin_map[close][10].bronz > 0 || Player_voin_map[close][10].serebr > 0 || Player_voin_map[close][10].gold > 0))
+						if ((ap == 7 || ap == 15 || ap == 16 || ap == 17 || ap == 18) && (Player_voin_map[close][0].bronz > 0 || Player_voin_map[close][0].serebr > 0 || Player_voin_map[close][0].gold > 0))
 						{
 							for (int i = 1; i <= kol; i++)
 							{
@@ -1645,11 +1789,11 @@ int main(int argc, char** argv)
 											strelka(renderer, map[close][0], map[close][1], 2, 1, t);
 										}
 									}
-									if (colr[i] == 0)
+									if (colr[i] == 10)
 									{
 										strelka(renderer, map[close][0], map[close][1], 2, 0, t);
 									}
-									if (colr[i]==10)
+									if (colr[i] == 0)
 									{
 										strelka(renderer, map[close][0], map[close][1], 2, 1, t);
 									}
@@ -1657,7 +1801,7 @@ int main(int argc, char** argv)
 								if (map[close][0] == map[i][0] + t && map[close][1] == map[i][1] + t)
 								{
 									if (colr[i] != 10 && colr[i] != 0)
-									{										
+									{
 										if (Player_sost[0][colr[i]] == 1 || Player_sost[0][colr[i]] == 0)
 										{
 											strelka(renderer, map[close][0], map[close][1], 1, 0, t);
@@ -1667,11 +1811,11 @@ int main(int argc, char** argv)
 											strelka(renderer, map[close][0], map[close][1], 1, 1, t);
 										}
 									}
-									if (colr[i] == 0)
+									if (colr[i] == 10)
 									{
 										strelka(renderer, map[close][0], map[close][1], 1, 0, t);
 									}
-									if (colr[i] == 10)
+									if (colr[i] == 0)
 									{
 										strelka(renderer, map[close][0], map[close][1], 1, 1, t);
 									}
@@ -1679,7 +1823,7 @@ int main(int argc, char** argv)
 								if (map[close][0] == map[i][0] - t && map[close][1] == map[i][1] - t)
 								{
 									if (colr[i] != 10 && colr[i] != 0)
-									{										
+									{
 										if (Player_sost[0][colr[i]] == 1 || Player_sost[0][colr[i]] == 0)
 										{
 											strelka(renderer, map[close][0], map[close][1], 3, 0, t);
@@ -1689,11 +1833,11 @@ int main(int argc, char** argv)
 											strelka(renderer, map[close][0], map[close][1], 3, 1, t);
 										}
 									}
-									if (colr[i] == 0)
+									if (colr[i] == 10)
 									{
 										strelka(renderer, map[close][0], map[close][1], 3, 0, t);
 									}
-									if (colr[i] == 10)
+									if (colr[i] == 0)
 									{
 										strelka(renderer, map[close][0], map[close][1], 3, 1, t);
 									}
@@ -1701,7 +1845,7 @@ int main(int argc, char** argv)
 								if (map[close][0] == map[i][0] + t && map[close][1] == map[i][1] - t)
 								{
 									if (colr[i] != 10 && colr[i] != 0)
-									{									
+									{
 										if (Player_sost[0][colr[i]] == 1 || Player_sost[0][colr[i]] == 0)
 										{
 											strelka(renderer, map[close][0], map[close][1], 4, 0, t);
@@ -1711,11 +1855,11 @@ int main(int argc, char** argv)
 											strelka(renderer, map[close][0], map[close][1], 4, 1, t);
 										}
 									}
-									if (colr[i] == 0)
+									if (colr[i] == 10)
 									{
 										strelka(renderer, map[close][0], map[close][1], 4, 0, t);
 									}
-									if (colr[i] == 10)
+									if (colr[i] == 0)
 									{
 										strelka(renderer, map[close][0], map[close][1], 4, 1, t);
 									}
@@ -1725,7 +1869,7 @@ int main(int argc, char** argv)
 						//отрисовка вонов на карте
 						for (int i = 1; i <= kol; i++)
 						{
-							for (int j = 1; j <= 10; j++)
+							for (int j = 0; j < Player_kol; j++)
 							{
 								int nom = 0;
 								if (Player_voin_map[i][j].bronz > 0)
@@ -1748,7 +1892,7 @@ int main(int argc, char** argv)
 						{
 							//показ городского начеления
 							gorod(renderer);
-							pokaz_4icel(window, renderer,gor_nas[close] , 9);
+							pokaz_4icel(window, renderer, gor_nas[close], 9);
 							if (sost == 5)
 								Menu_obchenia(renderer, 14, Player_st[close].market, Player_st[close].kazarm, Player_st[close].krepoct, Player_st[close].mine);
 							//выделение игровой области
@@ -1757,11 +1901,11 @@ int main(int argc, char** argv)
 							Menu_obchenia(renderer, ap, Player_st[close].market, Player_st[close].kazarm, Player_st[close].krepoct, Player_st[close].mine);
 							if (ap == 7)
 							{////////////////выбор определенного вида воинов
-								if (Player_voin_map[close][10].bronz == 0)
+								if (Player_voin_map[close][0].bronz == 0)
 									xod_voin(renderer, 1);
-								if (Player_voin_map[close][10].serebr == 0)
+								if (Player_voin_map[close][0].serebr == 0)
 									xod_voin(renderer, 2);
-								if (Player_voin_map[close][10].gold == 0)
+								if (Player_voin_map[close][0].gold == 0)
 									xod_voin(renderer, 3);
 							}
 							if (ap != 0)
@@ -1799,40 +1943,40 @@ int main(int argc, char** argv)
 							}
 							////////////////////при покупке проверка стрелок
 							if (ap == 15 || ap == 16 || ap == 17)
-							{								
+							{
 								pokaz_4icel(window, renderer, coinvoin[1], 8);
 								if (ap == 15)
 								{
-									pokaz_4icel(window, renderer, Player_voin_map[close][10].bronz, 7);
+									pokaz_4icel(window, renderer, Player_voin_map[close][0].bronz, 7);
 									if (coinvoin[1] == 0)
 									{
 										Menu_obchenia(renderer, 13, Player_st[close].market, Player_st[close].kazarm, Player_st[close].krepoct, Player_st[close].mine);
 									}
-									if (coinvoin[1] == Player_voin_map[close][10].bronz)
+									if (coinvoin[1] == Player_voin_map[close][0].bronz)
 									{
 										Menu_obchenia(renderer, 10, Player_st[close].market, Player_st[close].kazarm, Player_st[close].krepoct, Player_st[close].mine);
 									}
 								}
 								if (ap == 16)
 								{
-									pokaz_4icel(window, renderer, Player_voin_map[close][10].serebr, 7);
+									pokaz_4icel(window, renderer, Player_voin_map[close][0].serebr, 7);
 									if (coinvoin[1] == 0)
 									{
 										Menu_obchenia(renderer, 13, Player_st[close].market, Player_st[close].kazarm, Player_st[close].krepoct, Player_st[close].mine);
 									}
-									if (coinvoin[1] == Player_voin_map[close][10].serebr)
+									if (coinvoin[1] == Player_voin_map[close][0].serebr)
 									{
 										Menu_obchenia(renderer, 10, Player_st[close].market, Player_st[close].kazarm, Player_st[close].krepoct, Player_st[close].mine);
 									}
 								}
 								if (ap == 17)
 								{
-									pokaz_4icel(window, renderer, Player_voin_map[close][10].gold, 7);
+									pokaz_4icel(window, renderer, Player_voin_map[close][0].gold, 7);
 									if (coinvoin[1] == 0)
 									{
 										Menu_obchenia(renderer, 13, Player_st[close].market, Player_st[close].kazarm, Player_st[close].krepoct, Player_st[close].mine);
 									}
-									if (coinvoin[1] == Player_voin_map[close][10].gold)
+									if (coinvoin[1] == Player_voin_map[close][0].gold)
 									{
 										Menu_obchenia(renderer, 10, Player_st[close].market, Player_st[close].kazarm, Player_st[close].krepoct, Player_st[close].mine);
 									}
@@ -1858,21 +2002,19 @@ int main(int argc, char** argv)
 							}
 						}
 						//закончить ход//////////////////////////////////////////////////
-						if ((event.button.button == SDL_BUTTON_LEFT) && (event.button.x >= 1125 && event.button.x <= 1276 && event.button.y >= 566 && event.button.y <= 716))
+						if ((event.button.button == SDL_BUTTON_LEFT) && (event.button.x >= 1125 && event.button.x <= 1276 && event.button.y >= 566 && event.button.y <= 716) && pick==0)
 						{
 							//цикл вычисления ботов
 							close = 0;
 							ap = 0;
 							//присвоение заработанных средств
-							for (int i = 0; i < 10; i++)
+							for (int i = 0; i < Player_kol; i++)
 							{
-								if (i == 0) i = 10;
 								///////////+++++++
 								for (int j = 1; j <= kol; j++)
 								{
 									if (colr[j] == i)
 									{
-										if (i == 10) i = 0;
 										Player_res[i].gold += pice_men.gold;
 										Player_res[i].eat += pice_men.eat;
 										Player_res[i].metl += pice_men.metl;
@@ -1890,52 +2032,39 @@ int main(int argc, char** argv)
 										}
 										if (Player_st[j].mine == 2)
 										{
-											Player_res[i].gold +=2* pice_mine.gold;
-											Player_res[i].eat +=2* pice_mine.eat;
-											Player_res[i].metl +=2* pice_mine.metl;
+											Player_res[i].gold += 2 * pice_mine.gold;
+											Player_res[i].eat += 2 * pice_mine.eat;
+											Player_res[i].metl += 2 * pice_mine.metl;
 										}
 										if (Player_st[j].mine == 3)
 										{
-											Player_res[i].gold +=3* pice_mine.gold;
-											Player_res[i].eat +=3* pice_mine.eat;
-											Player_res[i].metl +=3* pice_mine.metl;
+											Player_res[i].gold += 3 * pice_mine.gold;
+											Player_res[i].eat += 3 * pice_mine.eat;
+											Player_res[i].metl += 3 * pice_mine.metl;
 										}
-										if (i == 0) i = 10;
-									}									
+									}
 								}
-								if (i == 10) i = 0;
 								/////////////////----------
 								for (int j = 1; j <= kol; j++)
 								{
-									if (i != 0)
-									{
-										Player_res[i].gold = Player_res[i].gold - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.gold);
-										Player_res[i].eat = Player_res[i].eat - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.eat);
-										Player_res[i].metl = Player_res[i].metl - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.metl);
-									}
-									if (i == 0)
-									{
-										i = 10;
-										Player_res[0].gold = Player_res[0].gold - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.gold);
-										Player_res[0].eat = Player_res[0].eat - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.eat);
-										Player_res[0].metl = Player_res[0].metl - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.metl);
-										i = 0;
-									}
+									Player_res[i].gold = Player_res[i].gold - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.gold);
+									Player_res[i].eat = Player_res[i].eat - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.eat);
+									Player_res[i].metl = Player_res[i].metl - ((Player_voin_map[j][i].bronz + Player_voin_map[j][i].serebr * 2 + Player_voin_map[j][i].gold * 3)*pice_arm.metl);
 								}
 								for (int j = 0; j < 10; j++)
 								{
 									if (Player_sost[i][j] == 2)
-									{										
+									{
 										Player_res[i].gold -= pice_sost_voin.gold;
 										Player_res[i].eat -= pice_sost_voin.eat;
-										Player_res[i].metl -= pice_sost_voin.metl;										
+										Player_res[i].metl -= pice_sost_voin.metl;
 									}
 								}
 							}
 							//ход воинов и их перестановка
 							for (int i = 1; i <= kol; i++)
 							{
-								for (int j = 1; j <= 10; j++)
+								for (int j = 0; j < Player_kol; j++)
 								{
 									Player_voin_map[i][j].bronz += Player_voin_xod[i][j].bronz;
 									Player_voin_map[i][j].serebr += Player_voin_xod[i][j].serebr;
@@ -1945,32 +2074,427 @@ int main(int argc, char** argv)
 									Player_voin_xod[i][j].gold = 0;
 								}
 							}
+							//сражение 
+							for (int i = 1; i <= kol; i++)
+							{
+								for (int j = 0; j < Player_kol; j++)
+								{
+									for (int j1 = 0; j1 < Player_kol; j1++)
+									{
+										if (j != j1)
+										{
+											//////////////////////////////////////////////////
+											if (Player_voin_map[i][j].bronz != 0 && Player_voin_map[i][j1].bronz != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].bronz * Player_st[i].krepoct >= Player_voin_map[i][j1].bronz)
+														{
+															Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].bronz / Player_st[i].krepoct;
+														}
+														else
+														{
+															Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].bronz*Player_st[i].krepoct;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].bronz * Player_st[i].krepoct >= Player_voin_map[i][j].bronz)
+														{
+															Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].bronz / Player_st[i].krepoct;
+														}
+														else
+														{
+															Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].bronz*Player_st[i].krepoct;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].bronz >= Player_voin_map[i][j1].bronz)
+													{
+														Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].bronz;
+													}
+													else
+													{
+														Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].bronz;
+													}
+												}
+											}
+											if (Player_voin_map[i][j].bronz != 0 && Player_voin_map[i][j1].serebr != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].bronz * Player_st[i].krepoct >= Player_voin_map[i][j1].serebr*2)
+														{
+															Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].serebr*2 / Player_st[i].krepoct;
+														}
+														else
+														{
+															Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].bronz*Player_st[i].krepoct/2;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].serebr * Player_st[i].krepoct*2 >= Player_voin_map[i][j].bronz)
+														{
+															Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].bronz / Player_st[i].krepoct/2;
+														}
+														else
+														{
+															Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].serebr*Player_st[i].krepoct*2;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].bronz >= Player_voin_map[i][j1].serebr*2)
+													{
+														Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].serebr*2;
+													}
+													else
+													{
+														Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].bronz/2;
+													}
+												}
+											}
+											if (Player_voin_map[i][j].bronz != 0 && Player_voin_map[i][j1].gold != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].bronz * Player_st[i].krepoct >= Player_voin_map[i][j1].gold * 3)
+														{
+															Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].gold * 3 / Player_st[i].krepoct;
+														}
+														else
+														{
+															Player_voin_map[i][j1].gold -= Player_voin_map[i][j].bronz*Player_st[i].krepoct / 3;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].gold * Player_st[i].krepoct * 3 >= Player_voin_map[i][j].bronz)
+														{
+															Player_voin_map[i][j1].gold -= Player_voin_map[i][j].bronz / Player_st[i].krepoct / 3;
+														}
+														else
+														{
+															Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].gold*Player_st[i].krepoct * 3;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].bronz >= Player_voin_map[i][j1].gold * 3)
+													{
+														Player_voin_map[i][j].bronz -= Player_voin_map[i][j1].gold * 3;
+													}
+													else
+													{
+														Player_voin_map[i][j1].gold -= Player_voin_map[i][j].bronz / 3;
+													}
+												}
+											}
+											if (Player_voin_map[i][j].serebr != 0 && Player_voin_map[i][j1].bronz != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].serebr * Player_st[i].krepoct*2 >= Player_voin_map[i][j1].bronz)
+														{
+															Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].bronz / Player_st[i].krepoct/2;
+														}
+														else
+														{
+															Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].serebr*Player_st[i].krepoct*2;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].bronz * Player_st[i].krepoct >= Player_voin_map[i][j].serebr*2)
+														{
+															Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].serebr*2 / Player_st[i].krepoct;
+														}
+														else
+														{
+															Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].bronz*Player_st[i].krepoct/2;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].serebr*2 >= Player_voin_map[i][j1].bronz)
+													{
+														Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].bronz/2;
+													}
+													else
+													{
+														Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].serebr*2;
+													}
+												}
+											}
+											if (Player_voin_map[i][j].serebr != 0 && Player_voin_map[i][j1].serebr != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].serebr * Player_st[i].krepoct >= Player_voin_map[i][j1].serebr)
+														{
+															Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].serebr  / Player_st[i].krepoct;
+														}
+														else
+														{
+															Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].serebr*Player_st[i].krepoct ;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].serebr * Player_st[i].krepoct  >= Player_voin_map[i][j].serebr)
+														{
+															Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].serebr / Player_st[i].krepoct ;
+														}
+														else
+														{
+															Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].serebr*Player_st[i].krepoct ;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].serebr >= Player_voin_map[i][j1].serebr )
+													{
+														Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].serebr ;
+													}
+													else
+													{
+														Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].serebr ;
+													}
+												}
+											}
+											if (Player_voin_map[i][j].serebr != 0 && Player_voin_map[i][j1].gold != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].serebr*2 * Player_st[i].krepoct >= Player_voin_map[i][j1].gold * 3)
+														{
+															Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].gold * 3 / Player_st[i].krepoct/2;
+														}
+														else
+														{
+															Player_voin_map[i][j1].gold -= Player_voin_map[i][j].serebr*2*Player_st[i].krepoct / 3;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].gold * Player_st[i].krepoct * 3 >= Player_voin_map[i][j].serebr*2)
+														{
+															Player_voin_map[i][j1].gold -= Player_voin_map[i][j].serebr*2 / Player_st[i].krepoct / 3;
+														}
+														else
+														{
+															Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].gold*Player_st[i].krepoct * 3/2;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].serebr*2 >= Player_voin_map[i][j1].gold * 3)
+													{
+														Player_voin_map[i][j].serebr -= Player_voin_map[i][j1].gold * 3/2;
+													}
+													else
+													{
+														Player_voin_map[i][j1].gold -= Player_voin_map[i][j].serebr*2 / 3;
+													}
+												}
+											}
+											if (Player_voin_map[i][j].gold != 0 && Player_voin_map[i][j1].bronz != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].gold*3 * Player_st[i].krepoct >= Player_voin_map[i][j1].bronz)
+														{
+															Player_voin_map[i][j].gold -= Player_voin_map[i][j1].bronz / Player_st[i].krepoct/3;
+														}
+														else
+														{
+															Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].gold*3*Player_st[i].krepoct;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].bronz * Player_st[i].krepoct >= Player_voin_map[i][j].gold*3)
+														{
+															Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].gold*3 / Player_st[i].krepoct;
+														}
+														else
+														{
+															Player_voin_map[i][j].gold -= Player_voin_map[i][j1].bronz*Player_st[i].krepoct/3;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].gold*3 >= Player_voin_map[i][j1].bronz)
+													{
+														Player_voin_map[i][j].gold -= Player_voin_map[i][j1].bronz/3;
+													}
+													else
+													{
+														Player_voin_map[i][j1].bronz -= Player_voin_map[i][j].gold*3;
+													}
+												}
+											}
+											if (Player_voin_map[i][j].gold != 0 && Player_voin_map[i][j1].serebr != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].gold*3 * Player_st[i].krepoct >= Player_voin_map[i][j1].serebr * 2)
+														{
+															Player_voin_map[i][j].gold -= Player_voin_map[i][j1].serebr * 2 / Player_st[i].krepoct/3;
+														}
+														else
+														{
+															Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].gold*3*Player_st[i].krepoct / 2;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].serebr * Player_st[i].krepoct * 2 >= Player_voin_map[i][j].gold*3)
+														{
+															Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].gold*3 / Player_st[i].krepoct / 2;
+														}
+														else
+														{
+															Player_voin_map[i][j].gold -= Player_voin_map[i][j1].serebr*Player_st[i].krepoct * 2/3;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].gold*3 >= Player_voin_map[i][j1].serebr * 2)
+													{
+														Player_voin_map[i][j].gold -= Player_voin_map[i][j1].serebr * 2/3;
+													}
+													else
+													{
+														Player_voin_map[i][j1].serebr -= Player_voin_map[i][j].gold*3 / 2;
+													}
+												}
+											}
+											if (Player_voin_map[i][j].gold != 0 && Player_voin_map[i][j1].gold != 0)
+											{
+												if (colr[i] == j)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j].gold * Player_st[i].krepoct >= Player_voin_map[i][j1].gold )
+														{
+															Player_voin_map[i][j].gold -= Player_voin_map[i][j1].gold / Player_st[i].krepoct;
+														}
+														else
+														{
+															Player_voin_map[i][j1].gold -= Player_voin_map[i][j].gold*Player_st[i].krepoct ;
+														}
+													}
+												}
+												if (colr[i] == j1)
+												{
+													if (Player_st[i].krepoct != 0)
+													{
+														if (Player_voin_map[i][j1].gold * Player_st[i].krepoct  >= Player_voin_map[i][j].gold)
+														{
+															Player_voin_map[i][j1].gold -= Player_voin_map[i][j].gold / Player_st[i].krepoct ;
+														}
+														else
+														{
+															Player_voin_map[i][j].gold -= Player_voin_map[i][j1].gold*Player_st[i].krepoct ;
+														}
+													}
+												}
+												if (colr[i] != j1 && colr[i] != j)
+												{
+													if (Player_voin_map[i][j].gold >= Player_voin_map[i][j1].gold )
+													{
+														Player_voin_map[i][j].gold -= Player_voin_map[i][j1].gold ;
+													}
+													else
+													{
+														Player_voin_map[i][j1].gold -= Player_voin_map[i][j].gold ;
+													}
+												}
+											}
+											//////////////////////////////////////////////
+										}
+									}
+								}
+							}
 							//присвоение игрокам их территории
 							for (int i = 1; i <= kol; i++)
 							{
-								for (int j = 1; j <= 10; j++)
+								for (int j = 0; j < Player_kol; j++)
 								{
 									if (Player_voin_map[i][j].bronz > 0 || Player_voin_map[i][j].serebr > 0 || Player_voin_map[i][j].gold > 0)
 									{
 										colr[i] = j;
 									}
 								}
-							}							
+							}
 						}
 						SDL_RenderPresent(renderer);
 						if (event.type == SDL_MOUSEBUTTONDOWN)
 						{
 							SDL_Delay(200);
+							pick++;
+						}
+						if (event.type == SDL_MOUSEBUTTONUP)
+						{
+							pick = 0;
 						}
 						if (event.type == SDL_QUIT)
 							quit = true;
 					}
 				}
 			}
-			//кнопка выхода////////////////////////////////////////////
-			if (event.button.x >= 489 && event.button.x <= 798 && event.button.y >= 563 && event.button.y <= 675)
-				quit = true;
-		}
+		}	
 	}
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
