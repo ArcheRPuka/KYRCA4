@@ -1330,6 +1330,20 @@ int main(int argc, char** argv)
 		fscanf_s(tf, "%d %d ", &map[i][0], &map[i][1]);
 	}
 	fclose(tf);
+	//количество воинов на карте
+	voin Player_voin_map[101][11];
+	voin Player_voin_xod[101][11];
+	int coinvoin[3];
+	int close = 0;
+	int ap = 0;
+	int sost = 0;
+	int pause = 0;
+	int xod[2]; xod[0] = 0; xod[1] = 0;
+	int Player_sost[10][10];
+	int colr[100];
+	Resyrs Player_res[10];
+	Stroenie Player_st[1000];
+	int gor_nas[100];
 	//начало отрисовки игры////////////////////////////////////////////
 	bool quit = false;
 	while (!quit)
@@ -1360,17 +1374,8 @@ int main(int argc, char** argv)
 			{
 				Player_kol = zagr_new(window, renderer, Player_kol);
 				//заполнение всего
-			}
-			else
-			{
-
-			}
-			if (Player_kol != 0)
-			{
 				//количество воинов на карте
-				voin Player_voin_map[101][11];
-				voin Player_voin_xod[101][11];
-				for (int i = 1; i <= 100; i++)
+				for (int i = 1; i <= kol; i++)
 					for (int j = 0; j < Player_kol; j++)
 					{
 						Player_voin_map[i][j].bronz = 0;
@@ -1380,18 +1385,11 @@ int main(int argc, char** argv)
 						Player_voin_xod[i][j].serebr = 0;
 						Player_voin_xod[i][j].gold = 0;
 					}
-				int coinvoin[3];
-				int close = 0;
-				int ap = 0;
-				int sost = 0;
-				int pause = 0;
-				int xod[2]; xod[0] = 0; xod[1] = 0;////////
 				//состояние между игроками///////////////////////////////////////////////
 				//1-е число номер игрока, 2-е число с каким именно игроком состояние
 				//0-нейтральное
 				//1-войны
 				//2-мира
-				int Player_sost[10][10];
 				for (int i = 0; i < Player_kol; i++)
 				{
 					for (int j = 0; j < 10; j++)
@@ -1400,7 +1398,6 @@ int main(int argc, char** argv)
 					}
 				}
 				//массивы ресурсов при старте////////////////////////////////////////////////
-				Resyrs Player_res[10];
 				for (int i = 0; i < Player_kol; i++)
 				{
 					Player_res[i].gold = 1000;
@@ -1408,7 +1405,6 @@ int main(int argc, char** argv)
 					Player_res[i].metl = 1000;
 				}
 				//массив построек////////////////////////////////////////////
-				Stroenie Player_st[1000];
 				for (int i = 1; i <= kol; i++)
 				{
 					Player_st[i].kazarm = 0;//3-ур
@@ -1416,8 +1412,7 @@ int main(int argc, char** argv)
 					Player_st[i].market = 0;//1-ур
 					Player_st[i].mine = 0;//3-ур
 				}
-				//цвета на карте
-				int colr[100];
+				//цвета на карте				
 				for (int i = 1; i <= kol; i++)
 				{
 					colr[i] = 10;
@@ -1435,10 +1430,7 @@ int main(int argc, char** argv)
 				case(2): {colr[1] = 1; }
 				case(1): {colr[34] = 0; }
 				}
-
-
 				//городское население
-				int gor_nas[100];
 				for (int i = 1; i <= kol; i++)
 				{
 					do
@@ -1446,8 +1438,62 @@ int main(int argc, char** argv)
 						gor_nas[i] = rand();
 					} while (gor_nas[i] > 300 || gor_nas[i] < 50);
 				}
-				//игровой цикл/////////////////////////////
-				while (!quit)
+			}
+			else
+			{
+				FILE* tex;
+				fopen_s(&tex, "save-save", "r");
+				fscanf_s(tex, "%d", &Player_kol);
+				for (int i = 1; i <= kol; i++)
+				{
+					for (int j = 0; j < Player_kol; j++)
+					{
+						fscanf_s(tex, "%d", &Player_voin_map[i][j].bronz);
+						fscanf_s(tex, "%d", &Player_voin_map[i][j].serebr);
+						fscanf_s(tex, "%d", &Player_voin_map[i][j].gold);
+					}
+				}
+				for (int i = 1; i <= kol; i++)
+				{
+					for (int j = 0; j < Player_kol; j++)
+					{
+						fscanf_s(tex, "%d", &Player_voin_xod[i][j].bronz);
+						fscanf_s(tex, "%d", &Player_voin_xod[i][j].serebr);
+						fscanf_s(tex, "%d", &Player_voin_xod[i][j].gold);
+					}
+				}
+				for (int i = 0; i < Player_kol; i++)
+				{
+					for (int j = 0; j < 10; j++)
+					{
+						fscanf_s(tex, "%d", &Player_sost[i][j]);
+					}
+				}
+				for (int i = 0; i < Player_kol; i++)
+				{
+					fscanf_s(tex, "%d", &Player_res[i].eat);
+					fscanf_s(tex, "%d", &Player_res[i].gold);
+					fscanf_s(tex, "%d", &Player_res[i].metl);
+				}
+				for (int i = 1; i <= kol; i++)
+				{
+					fscanf_s(tex, "%d", &Player_st[i].kazarm);
+					fscanf_s(tex, "%d", &Player_st[i].krepoct);
+					fscanf_s(tex, "%d", &Player_st[i].market);
+					fscanf_s(tex, "%d", &Player_st[i].mine);
+				}
+				for (int i = 1; i <= kol; i++)
+				{
+					fscanf_s(tex, "%d", &colr[i]);
+				}
+				for (int i = 1; i <= kol; i++)
+				{
+					fscanf_s(tex, "%d", &gor_nas[i]);
+				}
+				fclose(tex);
+			}	
+			//игровой цикл/////////////////////////////
+			while (!quit)
 				{
 					while (!SDL_PollEvent(&event))
 					{
@@ -1994,9 +2040,61 @@ int main(int argc, char** argv)
 								pause = 0;
 							}
 							//сохранить
-
+							if (event.type == SDL_MOUSEBUTTONDOWN && event.button.x >= 400 && event.button.x <= 878 && event.button.y >= 284 && event.button.y < 380)
+							{
+								FILE* tex;
+								fopen_s(&tex, "save-save", "w");
+								fprintf(tex, "%d ", Player_kol);
+								for (int i = 1; i <= kol; i++)
+								{
+									for (int j = 0; j < Player_kol; j++)
+									{
+										fprintf(tex, "%d ", Player_voin_map[i][j].bronz);
+										fprintf(tex, "%d ", Player_voin_map[i][j].serebr);
+										fprintf(tex, "%d ", Player_voin_map[i][j].gold);
+									}
+								}
+								for (int i = 1; i <= kol; i++)
+								{
+									for (int j = 0; j < Player_kol; j++)
+									{
+										fprintf(tex, "%d ", Player_voin_xod[i][j].bronz);
+										fprintf(tex, "%d ", Player_voin_xod[i][j].serebr);
+										fprintf(tex, "%d ", Player_voin_xod[i][j].gold);
+									}
+								}
+								for (int i = 0; i < Player_kol; i++)
+								{
+									for (int j = 0; j < 10; j++)
+									{
+										fprintf(tex, "%d ", Player_sost[i][j]);
+									}
+								}
+								for (int i = 0; i < Player_kol; i++)
+								{
+									fprintf(tex, "%d ", Player_res[i].eat);
+									fprintf(tex, "%d ", Player_res[i].gold);
+									fprintf(tex, "%d ", Player_res[i].metl);
+								}
+								for (int i = 1; i <= kol; i++)
+								{
+									fprintf(tex, "%d ", Player_st[i].kazarm);
+									fprintf(tex, "%d ", Player_st[i].krepoct);
+									fprintf(tex, "%d ", Player_st[i].market);
+									fprintf(tex, "%d ", Player_st[i].mine);
+								}
+								for (int i = 1; i <= kol; i++)
+								{
+									fprintf(tex, "%d ", colr[i]);
+								}
+								for (int i = 1; i <= kol; i++)
+								{
+									fprintf(tex, "%d ", gor_nas[i]);
+								}
+								fclose(tex);
+							}
 							//выход
-							if (event.type == SDL_MOUSEBUTTONDOWN && event.button.x >= 486 && event.button.x <= 790 && event.button.y >= 253 && event.button.y < 637)
+							if (event.type == SDL_MOUSEBUTTONDOWN && event.button.x >= 486 && event.button.x <= 790 && event.button.y >= 553 && event.button.y < 637)
 							{
 								quit = true;
 							}
@@ -2005,6 +2103,177 @@ int main(int argc, char** argv)
 						if ((event.button.button == SDL_BUTTON_LEFT) && (event.button.x >= 1125 && event.button.x <= 1276 && event.button.y >= 566 && event.button.y <= 716) && pick==0)
 						{
 							//цикл вычисления ботов
+							///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+							int bot; int fan;
+							for (int i = 1; i < Player_kol; i++)
+							{
+								bot = rand() % 2;
+								if (bot == 1)////---
+								{
+									for (int j = 1; j <= kol; j++)
+									{
+										if ((colr[j] == i) && Player_res[i].eat - price[1][0].eat > 0 && Player_res[i].gold - price[1][0].gold*3 > 0 && Player_res[i].metl - price[1][0].metl > 0 && Player_st[j].kazarm == 1)
+										{
+											Player_st[j].kazarm = 2;
+											Player_res[i].eat -= price[1][0].eat;
+											Player_res[i].gold -= price[1][0].gold;
+											Player_res[i].metl -= price[1][0].metl;
+										}
+										if ((colr[j] == i) && Player_res[i].eat - price[2][0].eat*2 > 0 && Player_res[i].gold*2 - price[2][0].gold > 0 && Player_res[i].metl*4 - price[2][0].metl > 0 && Player_st[j].kazarm == 2)
+										{
+											Player_st[j].kazarm = 3;
+											Player_res[i].eat -= price[2][0].eat;
+											Player_res[i].gold -= price[2][0].gold;
+											Player_res[i].metl -= price[2][0].metl;
+										}
+										if ((colr[j] == i) && Player_res[i].eat - price[0][0].eat*2 > 0 && Player_res[i].gold*2 - price[0][0].gold > 0 && Player_res[i].metl - price[0][0].metl > 0 && Player_st[j].kazarm == 0)
+										{
+											Player_st[j].kazarm = 1;
+											Player_res[i].eat -= price[0][0].eat;
+											Player_res[i].gold -= price[0][0].gold;
+											Player_res[i].metl -= price[0][0].metl;
+										}
+										if ((colr[j] == i) && Player_res[i].eat - price[2][2].eat * 4 > 0 && Player_res[i].gold * 4 - price[2][2].gold > 0 && Player_res[i].metl - price[2][2].metl > 0 && Player_st[j].krepoct == 2)
+										{
+											Player_st[j].krepoct = 1;
+											Player_res[i].eat -= price[2][2].eat;
+											Player_res[i].gold -= price[2][2].gold;
+											Player_res[i].metl -= price[2][2].metl;
+										}										
+										if ((colr[j] == i) && Player_res[i].eat - price[1][2].eat * 3 > 0 && Player_res[i].gold *  - price[1][2].gold > 0 && Player_res[i].metl - price[1][2].metl > 0 && Player_st[j].krepoct == 1)
+										{
+											Player_st[j].krepoct = 2;
+											Player_res[i].eat -= price[1][2].eat;
+											Player_res[i].gold -= price[1][2].gold;
+											Player_res[i].metl -= price[1][2].metl;
+										}																				
+										if ((colr[j] == i) && Player_res[i].eat - price[0][2].eat * 2 > 0 && Player_res[i].gold * 2 - price[0][2].gold > 0 && Player_res[i].metl - price[0][2].metl > 0 && Player_st[j].krepoct == 0)
+										{
+											Player_st[j].krepoct = 1;
+											Player_res[i].eat -= price[0][2].eat;
+											Player_res[i].gold -= price[0][2].gold;
+											Player_res[i].metl -= price[0][2].metl;
+										}										
+										if ((colr[j] == i) && Player_st[j].kazarm == 1 && Player_res[i].eat - price[3][1].eat * 7 > 0 && Player_res[i].gold - price[3][1].gold * 9 > 0 && Player_res[i].metl - price[3][1].metl * 8 > 0)
+										{
+											Player_voin_map[j][i].bronz++;
+											Player_res[i].eat -= price[3][1].eat;
+											Player_res[i].gold -= price[3][1].gold;
+											Player_res[i].metl -= price[3][1].metl;
+											gor_nas[j]--;
+										}
+										if ((colr[j] == i) && Player_st[j].kazarm == 2 && Player_res[i].eat - price[3][2].eat * 12 > 0 && Player_res[i].gold - price[3][2].gold * 15 > 0 && Player_res[i].metl - price[3][2].metl * 8 > 0)
+										{
+											Player_voin_map[j][i].serebr++;
+											Player_res[i].eat -= price[3][2].eat;
+											Player_res[i].gold -= price[3][2].gold;
+											Player_res[i].metl -= price[3][2].metl;
+											gor_nas[j]--;
+										}
+										if ((colr[j] == i) && Player_st[j].kazarm == 3 && Player_res[i].eat - price[3][3].eat * 27 > 0 && Player_res[i].gold - price[3][3].gold * 29 > 0 && Player_res[i].metl - price[3][3].metl * 28 > 0)
+										{
+											Player_voin_map[j][i].gold++;
+											Player_res[i].eat -= price[3][3].eat;
+											Player_res[i].gold -= price[3][3].gold;
+											Player_res[i].metl -= price[3][3].metl;
+											gor_nas[j]--;
+										}
+									}
+									for (int j = 0; j < Player_kol; j++)
+									{
+										fan = rand() % 3;
+										if (fan == 1)
+										{
+											Player_sost[i][j] = 2;
+										}
+										else
+										{
+											Player_sost[i][j] = 1;
+										}
+									}
+									for (int j = 1; j <= kol; j++)
+									{
+										fan = rand() % 4;
+										for (int k = 1; k <= kol; k++)
+										{
+											if (colr[j] == i)
+											{
+												if (fan == 0 && map[j][0] == map[k][0] - t && map[j][1] == map[k][1] + t)
+												{
+													Player_voin_xod[k][i].bronz = Player_voin_map[j][i].bronz;
+													Player_voin_xod[k][i].serebr = Player_voin_map[j][i].serebr;
+													Player_voin_xod[k][i].gold = Player_voin_map[j][i].gold;
+												}
+												if (fan == 1 && map[j][0] == map[k][0] + t && map[j][1] == map[k][1] + t)
+												{
+													Player_voin_xod[k][i].bronz = Player_voin_map[j][i].bronz;
+													Player_voin_xod[k][i].serebr = Player_voin_map[j][i].serebr;
+													Player_voin_xod[k][i].gold = Player_voin_map[j][i].gold;
+												}
+												if (fan == 2 && map[j][0] == map[k][0] - t && map[j][1] == map[k][1] - t)
+												{
+													Player_voin_xod[k][i].bronz = Player_voin_map[j][i].bronz;
+													Player_voin_xod[k][i].serebr = Player_voin_map[j][i].serebr;
+													Player_voin_xod[k][i].gold = Player_voin_map[j][i].gold;
+												}
+												if (fan == 3 && map[j][0] == map[k][0] + t && map[j][1] == map[k][1] - t)
+												{
+													Player_voin_xod[k][i].bronz = Player_voin_map[j][i].bronz;
+													Player_voin_xod[k][i].serebr = Player_voin_map[j][i].serebr;
+													Player_voin_xod[k][i].gold = Player_voin_map[j][i].gold;
+												}
+											}
+										}
+									}
+								}
+								else//////////+++++
+								{
+								for (int j = 1; j <= kol; j++)
+								{
+									if ((colr[j] == i) && Player_res[i].eat - price[0][3].eat * 2 > 0 && Player_res[i].gold * 2 - price[0][3].gold > 0 && Player_res[i].metl - price[0][3].metl > 0 && Player_st[j].market == 0)
+									{
+										Player_st[j].market = 1;
+										Player_res[i].eat -= price[0][3].eat;
+										Player_res[i].gold -= price[0][3].gold;
+										Player_res[i].metl -= price[0][3].metl;
+									}
+									if ((colr[j] == i) && Player_res[i].eat - price[2][1].eat * 13 > 0 && Player_res[i].gold * 12 - price[2][1].gold > 0 && Player_res[i].metl - price[2][1].metl > 0 && Player_st[j].mine == 2)
+									{
+										Player_st[j].mine = 3;
+										Player_res[i].eat -= price[2][1].eat;
+										Player_res[i].gold -= price[2][1].gold;
+										Player_res[i].metl -= price[2][1].metl;
+									}
+									if ((colr[j] == i) && Player_res[i].eat - price[1][1].eat * 5 > 0 && Player_res[i].gold * 5 - price[1][1].gold > 0 && Player_res[i].metl - price[1][1].metl > 0 && Player_st[j].mine == 1)
+									{
+										Player_st[j].mine = 2;
+										Player_res[i].eat -= price[1][1].eat;
+										Player_res[i].gold -= price[1][1].gold;
+										Player_res[i].metl -= price[1][1].metl;
+									}
+									if ((colr[j] == i) && Player_res[i].eat - price[0][1].eat * 2 > 0 && Player_res[i].gold * 2 - price[0][1].gold > 0 && Player_res[i].metl - price[0][1].metl > 0 && Player_st[j].mine == 0)
+									{
+										Player_st[j].mine = 1;
+										Player_res[i].eat -= price[0][1].eat;
+										Player_res[i].gold -= price[0][1].gold;
+										Player_res[i].metl -= price[0][1].metl;
+									}									
+								}
+								for (int j = 0; j < Player_kol; j++)
+								{
+									fan = rand() % 8;
+									if (fan == 1)
+									{
+										Player_sost[i][j] = 1;
+									}
+									else
+									{
+										Player_sost[i][j] = 2;
+									}
+								}
+								}
+							}
+							///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 							close = 0;
 							ap = 0;
 							//присвоение заработанных средств
@@ -2478,6 +2747,50 @@ int main(int argc, char** argv)
 									}
 								}
 							}
+							/////////индикатор состояния
+							for (int i = 0; i < Player_kol; i++)
+							{
+								for (int j = 0; j < Player_kol; j++)
+								{
+									if (Player_sost[i][j] == 2 && Player_sost[j][i] != 1)
+									{
+										Player_sost[j][i] = 2;
+									}
+									if (Player_sost[i][j] == 1)
+									{
+										Player_sost[j][i] = 1;
+									}
+								}
+							}
+							/////////////////закон порожения
+							for (int i = 0; i < Player_kol; i++)
+							{
+								int lup = 0;
+								for (int j = 1; j <= kol; j++)
+								{
+									if (colr[j] == i)
+										lup++;
+								}
+								if (lup == 0)
+								{
+									Player_res[i].eat = 0;
+									Player_res[i].gold = 0;
+									Player_res[i].metl = 0;
+									for (int j = 1; j <= kol; j++)
+									{
+										Player_voin_map[j][i].bronz = 0;
+										Player_voin_map[j][i].serebr = 0;
+										Player_voin_map[j][i].gold= 0;
+										Player_voin_xod[j][i].bronz = 0;
+										Player_voin_xod[j][i].gold = 0;
+										Player_voin_xod[j][i].serebr = 0;
+									}
+									for (int j = 0; j < 10; j++)
+									{
+										Player_sost[i][j] = 0;
+									}
+								}
+							}
 						}
 						SDL_RenderPresent(renderer);
 						if (event.type == SDL_MOUSEBUTTONDOWN)
@@ -2492,8 +2805,7 @@ int main(int argc, char** argv)
 						if (event.type == SDL_QUIT)
 							quit = true;
 					}
-				}
-			}
+				}			
 		}	
 	}
 	SDL_DestroyRenderer(renderer);
